@@ -1,0 +1,43 @@
+#项目名称
+rabbitchat:
+  name: 兔叽通讯
+  nameen: RabbitChat
+  version: v0.0.1
+
+#服务端口
+server:
+  port: 21010
+
+#数据库连接
+spring:
+  datasource:
+    #jdbc驱动程序
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #数据库连接
+    url: jdbc:mysql://localhost:21001/rabbittest?characterEncoding=utf-8
+    #数据库账号
+    username: root
+    #数据库密码
+    password: Mh^F&e8bCH
+
+#mybatis相关配置
+mybatis:
+  #mapper文件位置与格式
+  mapper-locations: classpath:mapper/*.xml
+  #设置实体类路径 其他位置的手动写注册吧
+  type-aliases-package: cn.mikulink.rabbitchat.entity.db
+  #设置日志 这样可以看到sql输出
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+
+
+
+
+
+
+
+
+
+
+

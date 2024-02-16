@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.mikulink.rabbitchat.mapper.UsersMapper">
+        <resultMap id="ResultMap" type="users">
+                <result property="id" column="id"/>
+            <result property="name" column="name"/>
+            <result property="account" column="account"/>
+            <result property="password" column="password"/>
+            <result property="userImg" column="user_img"/>
+            <result property="userStatus" column="user_status"/>
+        </resultMap>
+
+
+    <select id="getAll" resultMap="ResultMap">
+        select * from users
+    </select>
+
+</mapper>
