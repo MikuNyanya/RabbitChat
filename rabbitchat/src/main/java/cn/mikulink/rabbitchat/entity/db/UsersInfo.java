@@ -36,6 +36,10 @@ public class UsersInfo {
      */
     private String password;
     /**
+     * 密码加盐
+     */
+    private String passwordSalt;
+    /**
      * 用户头像
      */
     private String userImg;

@@ -7,5 +7,7 @@ package cn.mikulink.rabbitchat.content;
  * redis相关常量
  */
 public class RedisContent extends CommonCentent{
+    //会话权限码
+    public static final String KEY_CHATAUTH ="KEY_CHATAUTH_";
 
 }

@@ -5,17 +5,32 @@
 
 <mapper namespace="cn.mikulink.rabbitchat.mapper.UsersMapper">
         <resultMap id="ResultMap" type="users">
-                <result property="id" column="id"/>
+            <result property="id" column="id"/>
             <result property="name" column="name"/>
             <result property="account" column="account"/>
             <result property="password" column="password"/>
+            <result property="passwordSalt" column="password_salt"/>
             <result property="userImg" column="user_img"/>
             <result property="userStatus" column="user_status"/>
         </resultMap>
 
+    <select id="existsAccount" resultType="int">
+        select count(1) from users where account=#{account}
+    </select>
 
-    <select id="getAll" resultMap="ResultMap">
-        select * from users
+    <select id="getOne" resultMap="ResultMap">
+        select * from users where account = #{account} limit 1
+    </select>
+
+    <select id="getPwd" resultMap="ResultMap">
+        select password, password_salt from users
+        where account = #{account}
+        limit 1
+    </select>
+
+    <select id="create">
+        insert into users(name,account,password,password_salt,user_img,user_status)
+        values(#{name},#{account},#{password},#{passwordSalt},#{userImg},#{userStatus})
     </select>
 
 </mapper>
