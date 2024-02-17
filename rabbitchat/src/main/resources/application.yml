@@ -19,6 +19,14 @@ spring:
     username: root
     #数据库密码
     password: Mh^F&e8bCH
+  data:
+    redis:
+      #redis链接
+      host: localhost
+      #redis端口
+      port: 21015
+      #redis密码
+      password: a&e8h^F&e8bCHM
 
 #mybatis相关配置
 mybatis:

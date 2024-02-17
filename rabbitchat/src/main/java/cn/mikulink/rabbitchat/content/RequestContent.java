@@ -6,7 +6,7 @@ package cn.mikulink.rabbitchat.content;
  *
  * 存储请求相关的常量
  */
-public class RequestContent {
+public class RequestContent extends CommonCentent{
     //请求成功
     public static int CODE_SUCESS = 200;
     public static String CODE_SUCESS_TEXT = "请求成功";
