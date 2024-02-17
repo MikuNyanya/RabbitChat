@@ -1,8 +1,13 @@
 #项目名称
 rabbitchat:
+  #项目中文名
   name: 兔叽通讯
+  #项目英文名
   nameen: RabbitChat
+  #项目版本
   version: v0.0.1
+  #redis过期默认时间(秒)
+  redisexpiretime: 3600
 
 #服务端口
 server:
@@ -27,6 +32,8 @@ spring:
       port: 21015
       #redis密码
       password: a&e8h^F&e8bCHM
+      #读取redis超时时间(毫秒)
+      timeout: 1000
 
 #mybatis相关配置
 mybatis:
