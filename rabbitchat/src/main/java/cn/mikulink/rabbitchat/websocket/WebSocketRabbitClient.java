@@ -46,7 +46,7 @@ public class WebSocketRabbitClient extends WebSocketClient {
      * 发生错误
      */
     @Override
-    public void onError(Exception e) {
-        log.error("客户端websocket连接发生错误:{}", e.getMessage());
+    public void onError(Exception ex) {
+        log.error("客户端websocket连接发生错误", ex);
     }
 }

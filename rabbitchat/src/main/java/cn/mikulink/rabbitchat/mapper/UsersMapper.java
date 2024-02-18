@@ -19,5 +19,7 @@ public interface UsersMapper {
 
     UsersInfo getOne(String account);
 
+    UsersInfo getById(Long userId);
+
     UsersInfo getPwd(String account);
 }

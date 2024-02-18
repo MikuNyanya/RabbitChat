@@ -12,6 +12,8 @@ import java.util.Random;
  * 随机数工具
  */
 public class RandomUtil {
+    private static String randStrCentent = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
     /**
      * 随机一个正整数
      * 最小为0
@@ -108,7 +110,7 @@ public class RandomUtil {
      * @param strList 目标列表
      * @return 列表中的随机一条
      */
-    public static <T>T rollObjFromList(List<T> strList) {
+    public static <T> T rollObjFromList(List<T> strList) {
         if (null == strList || strList.size() <= 0) {
             return null;
         }
@@ -166,5 +168,18 @@ public class RandomUtil {
         int rollNum = roll(listCount - 1);
 
         return objectList.get(rollNum);
+    }
+
+
+    public static String randStr(Integer strLength) {
+        if (null == strLength) {
+            strLength = 0;
+        }
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < strLength; i++) {
+            int randIndex = roll(randStrCentent.length()-1);
+            sb.append(randStrCentent.charAt(randIndex));
+        }
+        return sb.toString();
     }
 }

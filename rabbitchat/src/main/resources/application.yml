@@ -9,7 +9,7 @@ rabbitchat:
   #redis过期默认时间(秒)
   redisexpiretime: 3600
   #3des密钥
-  des3key: test
+  des3key: IE37Ih9GfBM8oKajGMEGE37u
 
 #服务端口
 server:

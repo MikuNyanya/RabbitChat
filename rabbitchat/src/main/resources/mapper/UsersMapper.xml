@@ -18,6 +18,10 @@
         select count(1) from users where account=#{account}
     </select>
 
+    <select id="getById" resultMap="ResultMap">
+        select * from users where id = #{id}
+    </select>
+
     <select id="getOne" resultMap="ResultMap">
         select * from users where account = #{account} limit 1
     </select>

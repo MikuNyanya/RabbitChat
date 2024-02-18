@@ -3,8 +3,10 @@ package cn.mikulink.rabbitchat.controller;
 import cn.mikulink.rabbitchat.entity.param.UserLoginParam;
 import cn.mikulink.rabbitchat.entity.param.UserRegisterParam;
 import cn.mikulink.rabbitchat.entity.response.ResponseBean;
+import cn.mikulink.rabbitchat.entity.response.user.UserLoginVo;
 import cn.mikulink.rabbitchat.exceptions.RabbitException;
 import cn.mikulink.rabbitchat.service.UsersService;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,8 +37,8 @@ public class UserController {
     @ResponseBody
     public String login(@RequestBody UserLoginParam param) {
         try {
-            String chatAuth = usersService.login(param);
-            return ResponseBean.bizSuccess("登录成功", chatAuth);
+            UserLoginVo loginVo = usersService.login(param);
+            return ResponseBean.bizSuccess("登录成功", JSONObject.toJSONString(loginVo));
         } catch (RabbitException rabEx) {
             log.debug("用户登录失败", rabEx);
             return ResponseBean.bizFail(rabEx.getMessage());

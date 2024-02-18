@@ -8,6 +8,7 @@ package cn.mikulink.rabbitchat.utils;
  * 字符串工具类
  */
 public class StringUtil {
+
     /**
      * 是否为空
      * null或者空字符串都会判定为true

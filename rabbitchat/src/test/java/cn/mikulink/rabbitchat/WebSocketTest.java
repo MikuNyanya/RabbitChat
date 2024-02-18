@@ -16,11 +16,14 @@ public class WebSocketTest {
     @Test
     public void test() {
         try {
+            //携带会话权限码
+            webSocketUrl += "?chatAuth=123";
             WebSocketRabbitClient client = new WebSocketRabbitClient(new URI(webSocketUrl));
             client.setConnectionLostTimeout(5000);
             client.connect();
 
-            while (!client.getReadyState().equals(ReadyState.OPEN)){
+
+            while (!client.getReadyState().equals(ReadyState.OPEN)) {
                 System.out.println("正在连接...");
 
                 Thread.sleep(100);

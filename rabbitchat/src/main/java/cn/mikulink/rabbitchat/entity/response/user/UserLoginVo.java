@@ -10,6 +10,8 @@ import lombok.Setter;
 @Getter
 @Setter
 public class UserLoginVo {
+    //用户id
+    private Long uid;
     //会话权限码
     private String chatAuth;
 }
