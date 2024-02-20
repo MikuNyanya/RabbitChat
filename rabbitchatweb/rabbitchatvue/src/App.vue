@@ -1,0 +1,23 @@
+<script setup>
+// import HelloWorld from './components/HelloWorld.vue'
+import Index from './views/Index.vue'
+
+document.body.style.backgroundImage = "url(src/assets/img/bg.jpg)";
+document.body.style.backgroundSize = "cover";
+document.body.style.backgroundPosition = "center";
+document.body.style.backgroundRepeat = "no-repeat";
+</script>
+
+<template>
+
+
+    <div>
+        <!--      <HelloWorld msg="You did it!" />-->
+        <Index/>
+
+    </div>
+</template>
+
+<style scoped>
+</style>
+
