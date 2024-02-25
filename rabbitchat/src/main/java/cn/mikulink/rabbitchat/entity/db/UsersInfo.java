@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
 
+import java.util.Date;
+
 /**
  * MikuLink created in 2024/2/16 4:59
  * For the Reisen
@@ -22,6 +24,10 @@ public class UsersInfo {
      * 用户id
      */
     private Long id;
+    /**
+     * 创建时间
+     */
+    private Date createTime;
     /**
      * 用户名称
      */

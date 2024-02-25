@@ -66,6 +66,7 @@ public class UsersService {
 
         //转化为用户信息
         UsersInfo usersInfo = new UsersInfo();
+        usersInfo.setCreateTime(new Date());
         usersInfo.setAccount(param.getAccount());
         usersInfo.setName(param.getName());
         //如果没设置头像，使用默认头像
