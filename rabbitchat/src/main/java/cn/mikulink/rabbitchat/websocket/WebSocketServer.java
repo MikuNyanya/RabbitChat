@@ -1,6 +1,7 @@
 package cn.mikulink.rabbitchat.websocket;
 
 import cn.mikulink.rabbitchat.entity.response.MethodReInfo;
+import cn.mikulink.rabbitchat.service.ChatRecordService;
 import cn.mikulink.rabbitchat.service.UsersService;
 import cn.mikulink.rabbitchat.utils.DateUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -10,6 +11,7 @@ import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
@@ -38,8 +40,15 @@ public class WebSocketServer {
      */
     private static Map<String, Session> onlineSessionClientMap = new ConcurrentHashMap<>();
 
+    private static UsersService usersService;
+
     @Autowired
-    private UsersService usersService;
+    public void setUsersService(UsersService usersService){
+        WebSocketServer.usersService = usersService;
+    }
+
+    @Autowired
+    private ChatRecordService chatRecordService;
 
     /**
      * 连接建立成功调用的方法。由前端<code>new WebSocket</code>触发
@@ -64,6 +73,7 @@ public class WebSocketServer {
         MethodReInfo reInfo = usersService.chatAuthCheck(sid, chatAuth);
         if (!reInfo.isSucess()) {
             log.info("会话授权检验失败，拒绝客户端的连接 sid:{},sessionId:{},chatAuth:{}", sid, session.getId(), chatAuth);
+            return;
         }
 
         //身份验证完成后 保存会话 并向客户端回执连接建立成功
@@ -108,13 +118,24 @@ public class WebSocketServer {
      * @param session 与某个客户端的连接会话，需要通过它来给客户端发送消息
      */
     @OnMessage
-    public void onMessage(String message, Session session) {
-        //消息先落库 然后使用队列发出去
+    public void onMessage(@PathParam("sid") String sid, String message, Session session) {
+        log.info("服务端收到客户端消息 sid:{}, message:{}", sid, message);
+        WebSocketMessage msgInfo = JSONObject.parseObject(message, WebSocketMessage.class);
+        //检查授权码
+        MethodReInfo methodReInfo = usersService.chatAuthCheck(sid, msgInfo.getChatAuth());
+        if (!methodReInfo.isSucess()) {
+            log.info("接收到无授权的通讯 sid:{}, auth:{}, message:{}", sid, msgInfo.getChatAuth(), message);
+        }
+
+        WebSocketMessage returnMsg = new WebSocketMessage(msgInfo.getChatAuth(), 1, "0",
+                null, sid, null,"SUCCESS", DateUtil.toString(new Date()), "返回消息测试");
+
+        //消息先落库
 
         //是否互为联系人
 
+        //对目标人发送消息
 
-        log.info("服务端收到客户端消息:{}", message);
     }
 
     /**

@@ -1,23 +1,31 @@
 package cn.mikulink.rabbitchat;
 
+import cn.mikulink.rabbitchat.utils.DateUtil;
+import cn.mikulink.rabbitchat.websocket.WebSocketMessage;
 import cn.mikulink.rabbitchat.websocket.WebSocketRabbitClient;
+import com.alibaba.fastjson.JSONObject;
 import org.java_websocket.enums.ReadyState;
 import org.junit.Test;
 
 import java.net.URI;
+import java.util.Date;
 
 /**
  * MikuLink created in 2024/2/16 7:57
  * For the Reisen
  */
 public class WebSocketTest {
-    private String webSocketUrl = "ws://localhost:21010/websocket/1001";
+    private int sid = 1;
+    private int toId = 1;
+    private String authStr = "FjMmc0CNlzWI4WsaaHGO0Yhz/gm4pEpjpBsxM24awr2/xBoiAh0tpw==";
+    private String webSocketUrl = "ws://localhost:21010/websocket/";
 
     @Test
     public void test() {
         try {
             //携带会话权限码
-            webSocketUrl += "?chatAuth=123";
+            webSocketUrl += sid;
+            webSocketUrl += "?chatAuth=" + authStr;
             WebSocketRabbitClient client = new WebSocketRabbitClient(new URI(webSocketUrl));
             client.setConnectionLostTimeout(5000);
             client.connect();
@@ -29,7 +37,11 @@ public class WebSocketTest {
                 Thread.sleep(100);
             }
 
-            client.send("测试连接");
+            WebSocketMessage returnMsg = new WebSocketMessage(authStr, 1, String.valueOf(sid),
+                    null, String.valueOf(toId), null, "SUCCESS", DateUtil.toString(new Date()),
+                    "这是一条客户端消息" + DateUtil.toString(new Date()));
+
+            client.send(JSONObject.toJSONString(returnMsg));
 
             System.out.println("");
         } catch (Exception ex) {

@@ -35,7 +35,7 @@
 
     <select id="create">
         insert into users(create_time, name, account, password, password_salt, user_img, user_status)
-        values (#{create_time}, #{name}, #{account}, #{password}, #{passwordSalt}, #{userImg}, #{userStatus})
+        values (#{createTime}, #{name}, #{account}, #{password}, #{passwordSalt}, #{userImg}, #{userStatus})
     </select>
 
 </mapper>
