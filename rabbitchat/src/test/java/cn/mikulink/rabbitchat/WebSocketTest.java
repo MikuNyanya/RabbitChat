@@ -18,6 +18,7 @@ public class WebSocketTest {
     private int sid = 1;
     private int toId = 1;
     private String authStr = "FjMmc0CNlzWI4WsaaHGO0Yhz/gm4pEpjpBsxM24awr2/xBoiAh0tpw==";
+    //ws://localhost:21010/websocket/1?chatAuth=FjMmc0CNlzWI4WsaaHGO0Yhz/gm4pEpjpBsxM24awr2/xBoiAh0tpw==
     private String webSocketUrl = "ws://localhost:21010/websocket/";
 
     @Test

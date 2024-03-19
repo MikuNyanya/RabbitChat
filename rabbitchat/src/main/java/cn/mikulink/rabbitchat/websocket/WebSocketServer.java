@@ -125,17 +125,21 @@ public class WebSocketServer {
         MethodReInfo methodReInfo = usersService.chatAuthCheck(sid, msgInfo.getChatAuth());
         if (!methodReInfo.isSucess()) {
             log.info("接收到无授权的通讯 sid:{}, auth:{}, message:{}", sid, msgInfo.getChatAuth(), message);
+            return;
         }
 
-        WebSocketMessage returnMsg = new WebSocketMessage(msgInfo.getChatAuth(), 1, "0",
-                null, sid, null,"SUCCESS", DateUtil.toString(new Date()), "返回消息测试");
+//        WebSocketMessage returnMsg = new WebSocketMessage(msgInfo.getChatAuth(), 1, "0",
+//                null, sid, null,"SUCCESS", DateUtil.toString(new Date()), "返回消息测试");
 
         //消息先落库
 
         //是否互为联系人
 
         //对目标人发送消息
-
+        WebSocketMessage sendMsg = new WebSocketMessage(null, 1, String.valueOf(msgInfo.getFromUid()),
+                null, String.valueOf(msgInfo.getToUid()), null, "SUCCESS", DateUtil.toString(new Date()),
+                msgInfo.getMessage());
+        this.sendToOne(sendMsg);
     }
 
     /**

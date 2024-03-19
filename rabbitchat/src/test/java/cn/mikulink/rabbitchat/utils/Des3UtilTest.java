@@ -20,7 +20,7 @@ public class Des3UtilTest {
 
     @Test
     public void deCode() {
-        String code = "FjMmc0CNlzWgaMU/swY5RuL8eNcd9M8T84jV6/Y/vdC/xBoiAh0tpw==";
+        String code = "FjMmc0CNlzVftt+5b2Dar8dRw7VJlsA0KYvrENKBczC/xBoiAh0tpw==";
 
         String str = Des3Util.decrypt(key, code);
 
