@@ -10,10 +10,7 @@ document.body.style.backgroundRepeat = "no-repeat";
 </script>
 
 <template>
-
-
     <div>
-        <!--      <HelloWorld msg="You did it!" />-->
 <!--        <Index/>-->
 <!--        <chat/>-->
         <router-view/>
@@ -21,5 +18,6 @@ document.body.style.backgroundRepeat = "no-repeat";
 </template>
 
 <style scoped>
+
 </style>
 

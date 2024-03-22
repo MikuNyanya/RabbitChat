@@ -69,6 +69,10 @@ public class UsersService {
         usersInfo.setCreateTime(new Date());
         usersInfo.setAccount(param.getAccount());
         usersInfo.setName(param.getName());
+        //如果没有填写用户名 默认使用账号做为名称
+        if(StringUtil.isEmpty(usersInfo.getName())){
+            usersInfo.setName(usersInfo.getAccount());
+        }
         //如果没设置头像，使用默认头像
         if (StringUtil.isEmpty(param.getUserImg())) {
             usersInfo.setUserImg("");
