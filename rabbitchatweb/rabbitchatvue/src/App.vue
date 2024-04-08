@@ -3,18 +3,22 @@
 import Index from './views/Index.vue'
 import chat from './views/login.vue'
 
-document.body.style.backgroundImage = "url(src/assets/img/bg.jpg)";
-document.body.style.backgroundSize = "cover";
-document.body.style.backgroundPosition = "center";
-document.body.style.backgroundRepeat = "no-repeat";
+// document.body.style.backgroundImage = "url(src/assets/img/bg.jpg)";
+// document.body.style.backgroundSize = "cover";
+// document.body.style.backgroundPosition = "center";
+// document.body.style.backgroundRepeat = "no-repeat";
+//
+// document.getElementById("bg").style.backgroundImage = "url(src/assets/img/bg.jpg)";
+// document.getElementById("bg").style.backgroundSize = "cover";
+// document.getElementById("bg").style.backgroundPosition = "center";
+// document.getElementById("bg").style.backgroundRepeat = "no-repeat";
+
 </script>
 
 <template>
-    <div>
 <!--        <Index/>-->
 <!--        <chat/>-->
         <router-view/>
-    </div>
 </template>
 
 <style scoped>

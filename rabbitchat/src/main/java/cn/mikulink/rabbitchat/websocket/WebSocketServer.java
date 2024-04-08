@@ -85,11 +85,13 @@ public class WebSocketServer {
         //覆盖掉已存在的session 并通知重复登录
         if (onlineSessionClientMap.get(sid) != null) {
             //通知用户已顶掉该账号的当前登录状态
+            log.info("用户重复登录，sid:{}", sid);
+        } else {
+            //在线数加1
+            onlineSessionClientCount.incrementAndGet();
         }
         onlineSessionClientMap.put(sid, session);
 
-        //在线数加1
-        onlineSessionClientCount.incrementAndGet();
         log.info("连接建立成功，当前在线数为：{},开始监听新连接：session_id: {}， sid: {}", onlineSessionClientCount, session.getId(), sid);
 
         WebSocketMessage message = new WebSocketMessage(chatAuth, 1, "0", null, sid, null,
@@ -150,7 +152,7 @@ public class WebSocketServer {
             chatRecordService.create(info);
 
         } catch (Exception ex) {
-            log.error("消息保存异常",ex);
+            log.error("消息保存异常", ex);
         }
 
         //是否互为联系人
