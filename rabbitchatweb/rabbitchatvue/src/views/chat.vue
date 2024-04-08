@@ -9,25 +9,39 @@
 
         </el-aside>
         <el-main>
-            <div class="chat_main">
+            <div class="chat_main" v-if="chat_hide">
+                <div class="chat_head">
+                    <el-button class="chat_close" @click="close_chat">X</el-button>
+                </div>
                 <div class="chat_history">
                     <div class="msg_main_other">
-                        <div class="msg_logo">头像</div>
-                        <div class="msg_nick">昵称</div>
-                        <div class="msg_msg" >消息文本显示消息文本显示消息文本显示</div>
+                        <div class="msg_logo"></div>
+                        <div class="msg_nick">这是兔子</div>
+                        <br/>
+                        <br/>
+                        <div class="msg_msg">
+                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示
+                        </div>
+                    </div>
+                    <div class="msg_main_r">
+                        <div class="msg_logo_r"></div>
+                        <div class="msg_nick_r">这还是兔子</div>
+                        <br/>
+                        <br/>
+                        <div class="msg_msg_r">
+                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示
+                        </div>
                     </div>
 
-                    <textarea id="testText" v-model="testText" style="z-index: 1;width: 500px;height: 100px" disabled/>
+<!--                    <textarea id="testText" v-model="testText" style="z-index: 1;width: 500px;height: 100px" disabled/>-->
                 </div>
                 <div class="chat_tool">
-
+                    <el-button class="msg_send" type="primary" @click="send(this.message)" style="">发送
+                    </el-button>
                 </div>
                 <div class="chat_input">
-                    <textarea id="message" v-model="message"/>
+                    <textarea id="message" v-model="message" style="width: 80%;height: 80%"/>
                 </div>
-
-                <el-button type="primary" @click="send(this.message)" style="float: right;margin-top: 5px">发送
-                </el-button>
             </div>
         </el-main>
     </el-container>
@@ -46,6 +60,7 @@ export default {
             uid: "",
             toUid: "",
             message: "这里填写消息",
+            chat_hide:true,
         }
     },
     mounted() {
@@ -106,6 +121,9 @@ export default {
             // 销毁监听
             this.socket.onclose = this.close
 
+        },
+        close_chat(){
+            this.chat_hide = false;
         }
     },
     destroyed() {
@@ -125,7 +143,7 @@ export default {
     padding: 70px;
 }
 
-.chat_container .el-menu-item{
+.chat_container .el-menu-item {
 }
 
 .chat_container {
@@ -137,8 +155,30 @@ export default {
     height: 100%;
 }
 
+.chat_head{
+    height: 5%;
+    background: rgba(255, 100, 1, 1);
+    border-radius: 20px 20px 0 0;
+}
+
+.chat_close{
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.5);
+    float: right;
+    margin: 10px;
+    padding: 0;
+    border: 0;
+    border-radius:50%;
+
+    line-height: 20px;
+    text-align: center;
+    color: white;
+    font-size: 10px;
+}
+
 .chat_history {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.5);
     width: 100%;
     height: 70%;
 }
@@ -153,30 +193,79 @@ export default {
     background: rgba(255, 255, 255, 0.3);
     width: 100%;
     height: 20%;
+    border-radius: 0 0 20px 20px;
 }
 
 .msg_main_other {
-    background: rgba(255, 255, 155, 0.3);
+//background: rgba(255, 255, 155, 0.3); padding: 10px;
 }
 
 .msg_logo {
-    width: 50px;
-    height: 50px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     float: left;
 
-    background-image: url(@/assets/img/bg.jpg);
+    background-image: url(@/assets/img/rabbit_logo.jpg);
     background-size: cover; /*图片平铺*/
     background-repeat: no-repeat;
     background-position: center; /*居中显示*/
 }
 
 .msg_nick {
+    height: 40px;
+    line-height: 40px;
+    padding-left: 10px;
+    float: left;
 
+//background: rgba(255, 1, 150, 0.3);
 }
 
 .msg_msg {
-
+    width: 50%;
+    margin-left: 30px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(239, 96, 17, 0.8);
 }
 
+.msg_main_r {
+//background: rgba(255, 255, 155, 0.3); padding: 10px;
+    float: right;
+}
+
+.msg_logo_r {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    float: right;
+
+    background-image: url(@/assets/img/rabbit_logo.jpg);
+    background-size: cover; /*图片平铺*/
+    background-repeat: no-repeat;
+    background-position: center; /*居中显示*/
+}
+
+.msg_nick_r {
+    height: 40px;
+    line-height: 40px;
+    padding-right: 10px;
+    float: right;
+
+//background: rgba(255, 1, 150, 0.3);
+}
+
+.msg_msg_r {
+    width: 50%;
+    margin-right: 30px;
+    padding: 8px;
+    border-radius: 10px;
+    background: rgba(239, 96, 17, 0.8);
+    float: right;
+}
+
+.msg_send{
+    float: right;
+    margin: 5px 10px;
+}
 </style>
