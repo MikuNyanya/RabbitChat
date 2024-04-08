@@ -1,9 +1,11 @@
 package cn.mikulink.rabbitchat.websocket;
 
+import cn.mikulink.rabbitchat.entity.db.ChatRecordInfo;
 import cn.mikulink.rabbitchat.entity.response.MethodReInfo;
 import cn.mikulink.rabbitchat.service.ChatRecordService;
 import cn.mikulink.rabbitchat.service.UsersService;
 import cn.mikulink.rabbitchat.utils.DateUtil;
+import cn.mikulink.rabbitchat.utils.NumberUtil;
 import com.alibaba.fastjson.JSONObject;
 import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
@@ -11,7 +13,6 @@ import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
@@ -43,12 +44,16 @@ public class WebSocketServer {
     private static UsersService usersService;
 
     @Autowired
-    public void setUsersService(UsersService usersService){
+    public void setUsersService(UsersService usersService) {
         WebSocketServer.usersService = usersService;
     }
 
+    private static ChatRecordService chatRecordService;
+
     @Autowired
-    private ChatRecordService chatRecordService;
+    public void setUsersService(ChatRecordService chatRecordService) {
+        WebSocketServer.chatRecordService = chatRecordService;
+    }
 
     /**
      * 连接建立成功调用的方法。由前端<code>new WebSocket</code>触发
@@ -79,7 +84,7 @@ public class WebSocketServer {
         //身份验证完成后 保存会话 并向客户端回执连接建立成功
         //覆盖掉已存在的session 并通知重复登录
         if (onlineSessionClientMap.get(sid) != null) {
-
+            //通知用户已顶掉该账号的当前登录状态
         }
         onlineSessionClientMap.put(sid, session);
 
@@ -131,7 +136,22 @@ public class WebSocketServer {
 //        WebSocketMessage returnMsg = new WebSocketMessage(msgInfo.getChatAuth(), 1, "0",
 //                null, sid, null,"SUCCESS", DateUtil.toString(new Date()), "返回消息测试");
 
-        //消息先落库
+        //消息先落库 然后异步发送
+        try {
+            ChatRecordInfo info = new ChatRecordInfo();
+            info.setCreateTime(new Date());
+            info.setType(0);
+            info.setStatus(0);
+            info.setFromId(NumberUtil.toLong(msgInfo.getFromUid()));
+            info.setToId(NumberUtil.toLong(msgInfo.getToUid()));
+            info.setContent(msgInfo.getMessage());
+            info.setReadStatus(0);
+            info.setReadTime(null);
+            chatRecordService.create(info);
+
+        } catch (Exception ex) {
+            log.error("消息保存异常",ex);
+        }
 
         //是否互为联系人
 
@@ -176,7 +196,7 @@ public class WebSocketServer {
         // 通过sid查询map中是否存在
         Session toSession = onlineSessionClientMap.get(messageInfo.getToUid());
         if (toSession == null) {
-            log.warn("消息发送失败，sid不存在,message:{}", message);
+            log.warn("消息发送失败，sid不存在,该用户当前不在线，message:{}", message);
             return;
         }
         // 异步发送
