@@ -14,8 +14,8 @@
                     <el-button class="chat_close" @click="close_chat">X</el-button>
                 </div>
 
-                <el-scrollbar class="chat_history">
-                <div class="chat_history" v-html="chatHistoryHtml"></div>
+                <el-scrollbar class="chat_history" ref="chatHistoryScrollbar">
+                <div class="chat_history" v-html="chatHistoryHtml" ref="chatHistory"></div>
 <!--                <div class="chat_history">-->
 <!--                                    <div class="msg_main_other">-->
 <!--                                        <div class="msg_logo" style="background-image: url(/src/assets/img/rabbit_logo.jpg);"></div>-->
@@ -65,6 +65,7 @@ export default {
             toUid: "1",
             message: "这里填写消息",
             chat_hide: true,
+            //聊天框消息内容
             chatHistoryHtml: "",
         }
     },
@@ -112,14 +113,18 @@ export default {
 
             if (dataObj.messageSendType === 1 || dataObj.messageSendType === 2) {
                 //聊天框中添加一条消息记录
+                let msg_width_css = "auto";
+                if (dataObj.message.length>35){
+                    msg_width_css = "45%";
+                }
                 if(dataObj.fromUid === this.uid) {
                     //自己的消息
                     let msg_temp = "<div class=\"msg_main_r\">\n" +
                         "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
-                        "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
+                        // "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
                         "<br/>\n" +
                         "<br/>\n" +
-                        "<div class=\"msg_msg_r\">\n"+ dataObj.message + "</div>\n" +
+                        "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ dataObj.message + "</div>\n" +
                         "</div>";
                     this.chatHistoryHtml += msg_temp
                 }else{
@@ -129,7 +134,7 @@ export default {
                         "<div class=\"msg_nick\">" + dataObj.fromUname + "</div>\n" +
                         "<br/>\n" +
                         "<br/>\n" +
-                        "<div class=\"msg_msg\">" + dataObj.message + "</div>\n" +
+                        "<div class=\"msg_msg\" style=\"width: "+msg_width_css+"\">" + dataObj.message + "</div>\n" +
                         "</div>";
                     this.chatHistoryHtml += msg_temp
                 }
@@ -137,6 +142,15 @@ export default {
                 //服务器消息
             }
 
+            //滚动到最底部
+            // this.$refs.history_scrollbar.value({ top: this.$refs.chatHistory.scrollHeight, behavior: 'smooth' });
+            // this.$refs.history_scrollbar.scrollTo({ top: 0, behavior: 'smooth' });
+
+            //新消息需要先添加进去，再刷新滚动条，所以延迟一点时间刷新
+            setTimeout(() => {
+                this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
+                console.log(this.$refs.chatHistory.scrollHeight + " "+this.$refs.chatHistory.clientHeight)
+            }, 1);
         },
         // 发送消息给被连接的服务端
         send: function (message) {
@@ -147,6 +161,24 @@ export default {
                 fromUid: this.uid,
                 toUid: this.toUid
             }
+
+            let msg_width_css = "auto";
+            if (msgInfo.message.length>35){
+                msg_width_css = "45%";
+            }
+            //在聊天框加入自己的消息
+            let msg_temp = "<div class=\"msg_main_r\">\n" +
+                "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
+                // "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
+                "<br/>\n" +
+                "<br/>\n" +
+                "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ msgInfo.message + "</div>\n" +
+                "</div>";
+            this.chatHistoryHtml += msg_temp
+
+            setTimeout(() => {
+                this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
+            }, 1);
 
             this.socket.send(JSON.stringify(msgInfo))
         },
@@ -234,6 +266,7 @@ export default {
 
 :deep(.msg_main_other) {
     width: 100%;
+    float: left;
 //background: rgba(255, 255, 155, 0.3); padding: 10px;
 }
 
@@ -259,11 +292,12 @@ export default {
 }
 
 :deep(.msg_msg) {
-    width: 50%;
+    //width: 50%;
     margin-left: 30px;
     padding: 8px;
     border-radius: 10px;
     background: rgba(239, 96, 17, 0.8);
+    float: left;
 }
 
 :deep(.msg_main_r) {
@@ -293,7 +327,7 @@ export default {
 }
 
 :deep(.msg_msg_r) {
-    width: 50%;
+    //width: 50%;
     margin-right: 30px;
     padding: 8px;
     border-radius: 10px;
