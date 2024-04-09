@@ -38,7 +38,7 @@ public class WebSocketTest {
                 Thread.sleep(100);
             }
 
-            WebSocketMessage returnMsg = new WebSocketMessage(authStr, 1, String.valueOf(sid),
+            WebSocketMessage returnMsg = new WebSocketMessage(authStr, 1, String.valueOf(sid),null,
                     null, String.valueOf(toId), null, "SUCCESS", DateUtil.toString(new Date()),
                     "这是一条客户端消息" + DateUtil.toString(new Date()));
 

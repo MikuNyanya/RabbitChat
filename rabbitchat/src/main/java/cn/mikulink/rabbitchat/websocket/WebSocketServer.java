@@ -1,6 +1,7 @@
 package cn.mikulink.rabbitchat.websocket;
 
 import cn.mikulink.rabbitchat.entity.db.ChatRecordInfo;
+import cn.mikulink.rabbitchat.entity.db.UsersInfo;
 import cn.mikulink.rabbitchat.entity.response.MethodReInfo;
 import cn.mikulink.rabbitchat.service.ChatRecordService;
 import cn.mikulink.rabbitchat.service.UsersService;
@@ -94,7 +95,7 @@ public class WebSocketServer {
 
         log.info("连接建立成功，当前在线数为：{},开始监听新连接：session_id: {}， sid: {}", onlineSessionClientCount, session.getId(), sid);
 
-        WebSocketMessage message = new WebSocketMessage(chatAuth, 1, "0", null, sid, null,
+        WebSocketMessage message = new WebSocketMessage(chatAuth, 0, "0", null,null, sid, null,
                 "SUCCESS", DateUtil.toString(new Date()), "与服务器连接成功");
         //向客户端通知连接成功
         sendToOne(message);
@@ -144,7 +145,8 @@ public class WebSocketServer {
             info.setCreateTime(new Date());
             info.setType(0);
             info.setStatus(0);
-            info.setFromId(NumberUtil.toLong(msgInfo.getFromUid()));
+            Long fromUid = NumberUtil.toLong(msgInfo.getFromUid());
+            info.setFromId(fromUid);
             info.setToId(NumberUtil.toLong(msgInfo.getToUid()));
             info.setContent(msgInfo.getMessage());
             info.setReadStatus(0);
@@ -158,7 +160,13 @@ public class WebSocketServer {
         //是否互为联系人
 
         //对目标人发送消息
-        WebSocketMessage sendMsg = new WebSocketMessage(null, 1, String.valueOf(msgInfo.getFromUid()),
+        UsersInfo usersInfo = usersService.getById(NumberUtil.toLong(msgInfo.getFromUid()));
+
+        if (null == usersInfo) {
+            log.error("消息异常，用户不存在,sid:{}", sid);
+        }
+
+        WebSocketMessage sendMsg = new WebSocketMessage(null, 1, String.valueOf(msgInfo.getFromUid()),usersInfo.getName(),
                 null, String.valueOf(msgInfo.getToUid()), null, "SUCCESS", DateUtil.toString(new Date()),
                 msgInfo.getMessage());
         this.sendToOne(sendMsg);

@@ -17,10 +17,12 @@ public class WebSocketMessage {
 
     }
 
-    public WebSocketMessage(String chatAuth, Integer messageSendType,String fromUid,String fromGroupId, String toUid, String toGroupId,
+    public WebSocketMessage(String chatAuth, Integer messageSendType,String fromUid,String fromUname,String fromGroupId, String toUid, String toGroupId,
                             String messageStatus, String sendDateStr, String message) {
         this.chatAuth = chatAuth;
         this.messageSendType = messageSendType;
+        this.fromUid = fromUid;
+        this.fromUname = fromUname;
         this.toUid = toUid;
         this.toGroupId = toGroupId;
         this.messageStatus = messageStatus;
@@ -35,7 +37,7 @@ public class WebSocketMessage {
     private String chatAuth;
     /**
      * 动作类型
-     * 1.发送到用户 2.发送到群
+     * 0.服务器消息 1.发送到用户 2.发送到群
      */
     private Integer messageSendType;
     /**
@@ -44,6 +46,10 @@ public class WebSocketMessage {
      * 用户消息为对应的用户uid
      */
     private String fromUid;
+    /**
+     * 消息来源用户名称
+     */
+    private String fromUname;
     /**
      * 消息来源群id
      */

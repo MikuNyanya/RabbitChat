@@ -70,7 +70,7 @@ public class UsersService {
         usersInfo.setAccount(param.getAccount());
         usersInfo.setName(param.getName());
         //如果没有填写用户名 默认使用账号做为名称
-        if(StringUtil.isEmpty(usersInfo.getName())){
+        if (StringUtil.isEmpty(usersInfo.getName())) {
             usersInfo.setName(usersInfo.getAccount());
         }
         //如果没设置头像，使用默认头像
@@ -140,6 +140,18 @@ public class UsersService {
 
         return loginVo;
     }
+
+    /**
+     * 根据用户id获取用户信息
+     *
+     * @param userId 用户id
+     * @return 用户信息
+     */
+    public UsersInfo getById(Long userId) {
+        //todo 访问量一定大 走缓存减少db访问量
+        return this.mapper.getById(userId);
+    }
+
 
     /**
      * 根据用户信息创建会话权限码

@@ -13,28 +13,32 @@
                 <div class="chat_head">
                     <el-button class="chat_close" @click="close_chat">X</el-button>
                 </div>
-                <div class="chat_history">
-                    <div class="msg_main_other">
-                        <div class="msg_logo"></div>
-                        <div class="msg_nick">这是兔子</div>
-                        <br/>
-                        <br/>
-                        <div class="msg_msg">
-                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示
-                        </div>
-                    </div>
-                    <div class="msg_main_r">
-                        <div class="msg_logo_r"></div>
-                        <div class="msg_nick_r">这还是兔子</div>
-                        <br/>
-                        <br/>
-                        <div class="msg_msg_r">
-                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示
-                        </div>
-                    </div>
 
-<!--                    <textarea id="testText" v-model="testText" style="z-index: 1;width: 500px;height: 100px" disabled/>-->
-                </div>
+                <el-scrollbar class="chat_history">
+                <div class="chat_history" v-html="chatHistoryHtml"></div>
+<!--                <div class="chat_history">-->
+<!--                                    <div class="msg_main_other">-->
+<!--                                        <div class="msg_logo" style="background-image: url(/src/assets/img/rabbit_logo.jpg);"></div>-->
+<!--                                        <div class="msg_nick">这是兔子</div>-->
+<!--                                        <br/>-->
+<!--                                        <br/>-->
+<!--                                        <div class="msg_msg">-->
+<!--                                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+<!--                                    <div class="msg_main_r">-->
+<!--                                        <div class="msg_logo_r"></div>-->
+<!--                                        <div class="msg_nick_r">这还是兔子</div>-->
+<!--                                        <br/>-->
+<!--                                        <br/>-->
+<!--                                        <div class="msg_msg_r">-->
+<!--                                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示-->
+<!--                                        </div>-->
+<!--                                    </div>-->
+
+<!--                                    <textarea id="testText" v-model="testText" style="z-index: 1;width: 500px;height: 100px" disabled/>-->
+<!--                </div>-->
+                </el-scrollbar>
                 <div class="chat_tool">
                     <el-button class="msg_send" type="primary" @click="send(this.message)" style="">发送
                     </el-button>
@@ -58,9 +62,10 @@ export default {
             socket: "",
             authStr: "",
             uid: "",
-            toUid: "",
+            toUid: "1",
             message: "这里填写消息",
-            chat_hide:true,
+            chat_hide: true,
+            chatHistoryHtml: "",
         }
     },
     mounted() {
@@ -99,8 +104,39 @@ export default {
             console.log("连接错误")
         },
         getMessage: function (msg) {
+            console.log("接收到服务器消息")
             console.log(msg.data);
             this.testText = msg.data;
+
+            let dataObj = JSON.parse(msg.data);
+
+            if (dataObj.messageSendType === 1 || dataObj.messageSendType === 2) {
+                //聊天框中添加一条消息记录
+                if(dataObj.fromUid === this.uid) {
+                    //自己的消息
+                    let msg_temp = "<div class=\"msg_main_r\">\n" +
+                        "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
+                        "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
+                        "<br/>\n" +
+                        "<br/>\n" +
+                        "<div class=\"msg_msg_r\">\n"+ dataObj.message + "</div>\n" +
+                        "</div>";
+                    this.chatHistoryHtml += msg_temp
+                }else{
+                    //别人的消息
+                    let msg_temp = "<div class=\"msg_main_other\">\n" +
+                        "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>" +
+                        "<div class=\"msg_nick\">" + dataObj.fromUname + "</div>\n" +
+                        "<br/>\n" +
+                        "<br/>\n" +
+                        "<div class=\"msg_msg\">" + dataObj.message + "</div>\n" +
+                        "</div>";
+                    this.chatHistoryHtml += msg_temp
+                }
+            }else if(dataObj.messageSendType === 0){
+                //服务器消息
+            }
+
         },
         // 发送消息给被连接的服务端
         send: function (message) {
@@ -122,7 +158,7 @@ export default {
             this.socket.onclose = this.close
 
         },
-        close_chat(){
+        close_chat() {
             this.chat_hide = false;
         }
     },
@@ -155,13 +191,13 @@ export default {
     height: 100%;
 }
 
-.chat_head{
+.chat_head {
     height: 5%;
     background: rgba(255, 100, 1, 1);
     border-radius: 20px 20px 0 0;
 }
 
-.chat_close{
+.chat_close {
     width: 20px;
     height: 20px;
     background: rgba(0, 0, 0, 0.5);
@@ -169,7 +205,7 @@ export default {
     margin: 10px;
     padding: 0;
     border: 0;
-    border-radius:50%;
+    border-radius: 50%;
 
     line-height: 20px;
     text-align: center;
@@ -196,11 +232,12 @@ export default {
     border-radius: 0 0 20px 20px;
 }
 
-.msg_main_other {
+:deep(.msg_main_other) {
+    width: 100%;
 //background: rgba(255, 255, 155, 0.3); padding: 10px;
 }
 
-.msg_logo {
+:deep(.msg_logo) {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -212,7 +249,7 @@ export default {
     background-position: center; /*居中显示*/
 }
 
-.msg_nick {
+:deep(.msg_nick) {
     height: 40px;
     line-height: 40px;
     padding-left: 10px;
@@ -221,7 +258,7 @@ export default {
 //background: rgba(255, 1, 150, 0.3);
 }
 
-.msg_msg {
+:deep(.msg_msg) {
     width: 50%;
     margin-left: 30px;
     padding: 8px;
@@ -229,12 +266,12 @@ export default {
     background: rgba(239, 96, 17, 0.8);
 }
 
-.msg_main_r {
-//background: rgba(255, 255, 155, 0.3); padding: 10px;
-    float: right;
+:deep(.msg_main_r) {
+    width: 100%;
+//background: rgba(255, 255, 155, 0.3); padding: 10px; float: right;
 }
 
-.msg_logo_r {
+:deep(.msg_logo_r) {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -246,7 +283,7 @@ export default {
     background-position: center; /*居中显示*/
 }
 
-.msg_nick_r {
+:deep(.msg_nick_r) {
     height: 40px;
     line-height: 40px;
     padding-right: 10px;
@@ -255,7 +292,7 @@ export default {
 //background: rgba(255, 1, 150, 0.3);
 }
 
-.msg_msg_r {
+:deep(.msg_msg_r) {
     width: 50%;
     margin-right: 30px;
     padding: 8px;
@@ -264,7 +301,7 @@ export default {
     float: right;
 }
 
-.msg_send{
+.msg_send {
     float: right;
     margin: 5px 10px;
 }
