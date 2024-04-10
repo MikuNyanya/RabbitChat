@@ -3,6 +3,8 @@ package cn.mikulink.rabbitchat.mapper;
 import cn.mikulink.rabbitchat.entity.db.UsersInfo;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.List;
+
 /**
  * MikuLink created in 2024/2/16 5:05
  * For the Reisen
@@ -22,4 +24,6 @@ public interface UsersMapper {
     UsersInfo getById(Long userId);
 
     UsersInfo getPwd(String account);
+
+    List<UsersInfo> getAll();
 }

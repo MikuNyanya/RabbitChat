@@ -95,7 +95,7 @@ public class WebSocketServer {
 
         log.info("连接建立成功，当前在线数为：{},开始监听新连接：session_id: {}， sid: {}", onlineSessionClientCount, session.getId(), sid);
 
-        WebSocketMessage message = new WebSocketMessage(chatAuth, 0, "0", null,null, sid, null,
+        WebSocketMessage message = new WebSocketMessage(chatAuth, 0, "0", null, null, sid, null,
                 "SUCCESS", DateUtil.toString(new Date()), "与服务器连接成功");
         //向客户端通知连接成功
         sendToOne(message);
@@ -139,37 +139,14 @@ public class WebSocketServer {
 //        WebSocketMessage returnMsg = new WebSocketMessage(msgInfo.getChatAuth(), 1, "0",
 //                null, sid, null,"SUCCESS", DateUtil.toString(new Date()), "返回消息测试");
 
-        //消息先落库 然后异步发送
-        try {
-            ChatRecordInfo info = new ChatRecordInfo();
-            info.setCreateTime(new Date());
-            info.setType(0);
-            info.setStatus(0);
-            Long fromUid = NumberUtil.toLong(msgInfo.getFromUid());
-            info.setFromId(fromUid);
-            info.setToId(NumberUtil.toLong(msgInfo.getToUid()));
-            info.setContent(msgInfo.getMessage());
-            info.setReadStatus(0);
-            info.setReadTime(null);
-            chatRecordService.create(info);
-
-        } catch (Exception ex) {
-            log.error("消息保存异常", ex);
+        //业务分流
+        if (msgInfo.getMessageSendType() == 3) {
+            //获取用户列表
+            sendUserList(msgInfo);
         }
 
-        //是否互为联系人
-
-        //对目标人发送消息
-        UsersInfo usersInfo = usersService.getById(NumberUtil.toLong(msgInfo.getFromUid()));
-
-        if (null == usersInfo) {
-            log.error("消息异常，用户不存在,sid:{}", sid);
-        }
-
-        WebSocketMessage sendMsg = new WebSocketMessage(null, 1, String.valueOf(msgInfo.getFromUid()),usersInfo.getName(),
-                null, String.valueOf(msgInfo.getToUid()), null, "SUCCESS", DateUtil.toString(new Date()),
-                msgInfo.getMessage());
-        this.sendToOne(sendMsg);
+        //消息
+        sendMessage(msgInfo);
     }
 
     /**
@@ -220,5 +197,94 @@ public class WebSocketServer {
             log.error("发送消息失败，WebSocket IO异常");
             e.printStackTrace();
         }*/
+    }
+
+
+    private void sendToGroup(WebSocketMessage messageInfo) {
+        String message = JSONObject.toJSONString(messageInfo);
+
+        //获取该群组人员列表
+
+        //发送给session在线群员
+
+
+
+
+        for (Session value : onlineSessionClientMap.values()) {
+            if (value == null) {
+                continue;
+            }
+            // 异步发送
+            log.info("群组消息，向客户端发送消息,toUid:{},message:{}", messageInfo.getToUid(), message);
+            value.getAsyncRemote().sendText(message);
+        }
+    }
+
+    private void sendMessage(WebSocketMessage msgInfo) {
+        //消息先落库 然后异步发送
+        try {
+            ChatRecordInfo info = new ChatRecordInfo();
+            info.setCreateTime(new Date());
+            info.setType(0);
+            info.setStatus(0);
+            Long fromUid = NumberUtil.toLong(msgInfo.getFromUid());
+            info.setFromId(fromUid);
+            info.setToId(NumberUtil.toLong(msgInfo.getToUid()));
+            info.setContent(msgInfo.getMessage());
+            info.setReadStatus(0);
+            info.setReadTime(null);
+            chatRecordService.create(info);
+
+        } catch (Exception ex) {
+            log.error("消息保存异常", ex);
+        }
+
+
+        if (msgInfo.getMessageSendType() == 1) {
+            //发送到用户
+            msgToUser(msgInfo);
+        }
+
+
+        if (msgInfo.getMessageSendType() == 2) {
+            //发送到群组
+            msgToGroup(msgInfo);
+        }
+    }
+
+
+    //发送消息给用户
+    private void msgToUser(WebSocketMessage msgInfo) {
+        //是否互为联系人
+
+        //对目标人发送消息
+        UsersInfo usersInfo = usersService.getById(NumberUtil.toLong(msgInfo.getFromUid()));
+
+        if (null == usersInfo) {
+            log.error("用户消息异常，用户不存在,uid:{}", msgInfo.getFromUid());
+        }
+
+        WebSocketMessage sendMsg = new WebSocketMessage(null, 1, String.valueOf(msgInfo.getFromUid()), usersInfo.getName(),
+                null, String.valueOf(msgInfo.getToUid()), null, "SUCCESS", DateUtil.toString(new Date()),
+                msgInfo.getMessage());
+        this.sendToOne(sendMsg);
+    }
+
+    //发送消息到群组
+    private void msgToGroup(WebSocketMessage msgInfo){
+        UsersInfo usersInfo = usersService.getById(NumberUtil.toLong(msgInfo.getFromUid()));
+        msgInfo.setFromUserImg(usersInfo.getUserImg());
+        //发送给群组
+        sendToGroup(msgInfo);
+    }
+
+    //返回用户列表
+    private void sendUserList(WebSocketMessage msgInfo) {
+        List<UsersInfo> usersInfos = usersService.getAll();
+
+        WebSocketMessage sendMsg = new WebSocketMessage(null, 3, "0", null,
+                null, String.valueOf(msgInfo.getFromUid()), null, "SUCCESS", DateUtil.toString(new Date()),
+                JSONObject.toJSONString(usersInfos));
+        this.sendToOne(sendMsg);
     }
 }

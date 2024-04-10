@@ -11,36 +11,15 @@
         <el-main>
             <div class="chat_main" v-if="chat_hide">
                 <div class="chat_head">
-                    <el-button class="chat_close" @click="close_chat">X</el-button>
+                    <div style="text-align: center;font-size: 25px;color: white">兔子窝</div>
+<!--                    <el-button class="chat_close" @click="close_chat">X</el-button>-->
                 </div>
 
                 <el-scrollbar class="chat_history" ref="chatHistoryScrollbar">
                 <div class="chat_history" v-html="chatHistoryHtml" ref="chatHistory"></div>
-<!--                <div class="chat_history">-->
-<!--                                    <div class="msg_main_other">-->
-<!--                                        <div class="msg_logo" style="background-image: url(/src/assets/img/rabbit_logo.jpg);"></div>-->
-<!--                                        <div class="msg_nick">这是兔子</div>-->
-<!--                                        <br/>-->
-<!--                                        <br/>-->
-<!--                                        <div class="msg_msg">-->
-<!--                                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-<!--                                    <div class="msg_main_r">-->
-<!--                                        <div class="msg_logo_r"></div>-->
-<!--                                        <div class="msg_nick_r">这还是兔子</div>-->
-<!--                                        <br/>-->
-<!--                                        <br/>-->
-<!--                                        <div class="msg_msg_r">-->
-<!--                                            消息文本息文本显示消文本息文本显示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息示消息文本显示消息文本显示-->
-<!--                                        </div>-->
-<!--                                    </div>-->
-
-<!--                                    <textarea id="testText" v-model="testText" style="z-index: 1;width: 500px;height: 100px" disabled/>-->
-<!--                </div>-->
                 </el-scrollbar>
                 <div class="chat_tool">
-                    <el-button class="msg_send" type="primary" @click="send(this.message)" style="">发送
+                    <el-button class="msg_send" type="primary" @click="send(message)">发送
                     </el-button>
                 </div>
                 <div class="chat_input">
@@ -48,6 +27,18 @@
                 </div>
             </div>
         </el-main>
+
+        <el-aside width="200px">
+            <h5 class="userListTitle">用户列表</h5>
+            <el-scrollbar class="userListScrollbar">
+            <div class="userList" v-for="(item,index) in userList">
+                <div class="userInfo">
+                    <div class="ulistlogo" style="background-image: url(/src/assets/img/IzumiKonata_logo.jpg);"></div>
+                    <div class="ulistname" >{{ item.name }}</div>
+                </div>
+            </div>
+            </el-scrollbar>
+        </el-aside>
     </el-container>
 </template>
 
@@ -63,10 +54,13 @@ export default {
             authStr: "",
             uid: "",
             toUid: "1",
+            userName:"",
+            userImg:"",
             message: "这里填写消息",
             chat_hide: true,
             //聊天框消息内容
             chatHistoryHtml: "",
+            userList:[],
         }
     },
     mounted() {
@@ -111,46 +105,39 @@ export default {
 
             let dataObj = JSON.parse(msg.data);
 
-            if (dataObj.messageSendType === 1 || dataObj.messageSendType === 2) {
-                //聊天框中添加一条消息记录
-                let msg_width_css = "auto";
-                if (dataObj.message.length>35){
-                    msg_width_css = "45%";
-                }
-                if(dataObj.fromUid === this.uid) {
-                    //自己的消息
-                    let msg_temp = "<div class=\"msg_main_r\">\n" +
-                        "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
-                        // "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
-                        "<br/>\n" +
-                        "<br/>\n" +
-                        "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ dataObj.message + "</div>\n" +
-                        "</div>";
-                    this.chatHistoryHtml += msg_temp
-                }else{
-                    //别人的消息
-                    let msg_temp = "<div class=\"msg_main_other\">\n" +
-                        "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>" +
-                        "<div class=\"msg_nick\">" + dataObj.fromUname + "</div>\n" +
-                        "<br/>\n" +
-                        "<br/>\n" +
-                        "<div class=\"msg_msg\" style=\"width: "+msg_width_css+"\">" + dataObj.message + "</div>\n" +
-                        "</div>";
-                    this.chatHistoryHtml += msg_temp
-                }
-            }else if(dataObj.messageSendType === 0){
-                //服务器消息
+            if(dataObj.message == "与服务器连接成功"){
+                this.getUserList();
             }
 
-            //滚动到最底部
-            // this.$refs.history_scrollbar.value({ top: this.$refs.chatHistory.scrollHeight, behavior: 'smooth' });
-            // this.$refs.history_scrollbar.scrollTo({ top: 0, behavior: 'smooth' });
+            if (dataObj.messageSendType === 1 || dataObj.messageSendType === 2) {
+                if(dataObj.fromUid === this.uid) {
+                    //自己的消息
+                    // let msg_temp = "<div class=\"msg_main_r\">\n" +
+                    //     "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
+                    //     // "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
+                    //     "<br/>\n" +
+                    //     "<br/>\n" +
+                    //     "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ dataObj.message + "</div>\n" +
+                    //     "</div>";
+                    // this.chatHistoryHtml += msg_temp
+                }else{
+                    this.chatAdd(dataObj.fromUserImg,dataObj.fromUname,dataObj.message);
+                }
 
-            //新消息需要先添加进去，再刷新滚动条，所以延迟一点时间刷新
-            setTimeout(() => {
-                this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
-                console.log(this.$refs.chatHistory.scrollHeight + " "+this.$refs.chatHistory.clientHeight)
-            }, 1);
+                //消息框滚动到最底部
+                //新消息需要先添加进去，再刷新滚动条，所以延迟一点时间刷新
+                setTimeout(() => {
+                    this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
+                    console.log(this.$refs.chatHistory.scrollHeight + " "+this.$refs.chatHistory.clientHeight)
+                }, 1);
+            }else if(dataObj.messageSendType === 0){
+                //服务器消息
+
+            }else if(dataObj.messageSendType === 3){
+                //用户列表
+                this.userList = JSON.parse(dataObj.message);
+            }
+
         },
         // 发送消息给被连接的服务端
         send: function (message) {
@@ -167,18 +154,34 @@ export default {
                 msg_width_css = "45%";
             }
             //在聊天框加入自己的消息
-            let msg_temp = "<div class=\"msg_main_r\">\n" +
-                "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
-                // "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
+            // let msg_temp = "<div class=\"msg_main_r\">\n" +
+            //     "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
+            //     // "<div class=\"msg_nick_r\">"+ dataObj.fromUname + "</div>\n" +
+            //     "<br/>\n" +
+            //     "<br/>\n" +
+            //     "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ msgInfo.message + "</div>\n" +
+            //     "</div>";
+            let msg_temp = "<div class=\"msg_main_other\">\n" +
+                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/"+this.userImg+");\"></div>" +
+                "<div class=\"msg_nick\">" + this.userName + "</div>\n" +
                 "<br/>\n" +
                 "<br/>\n" +
-                "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ msgInfo.message + "</div>\n" +
+                "<div class=\"msg_msg\" style=\"width: "+msg_width_css+"\">" + msgInfo.message + "</div>\n" +
                 "</div>";
             this.chatHistoryHtml += msg_temp
 
             setTimeout(() => {
                 this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
             }, 1);
+
+            this.socket.send(JSON.stringify(msgInfo))
+        },
+        getUserList(){
+            var msgInfo = {
+                chatAuth: this.authStr,
+                messageSendType: 3,
+                fromUid: this.uid
+            }
 
             this.socket.send(JSON.stringify(msgInfo))
         },
@@ -192,6 +195,22 @@ export default {
         },
         close_chat() {
             this.chat_hide = false;
+        },
+        chatAdd(logo,name,message){
+            let msg_width_css = "auto";
+            if (message.length>35){
+                msg_width_css = "45%";
+            }
+
+            //别人的消息
+            let msg_temp = "<div class=\"msg_main_other\">\n" +
+                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/"+dataObj.fromUserImg +");\"></div>" +
+                "<div class=\"msg_nick\">" + dataObj.fromUname + "</div>\n" +
+                "<br/>\n" +
+                "<br/>\n" +
+                "<div class=\"msg_msg\" style=\"width: "+msg_width_css+"\">" + dataObj.message + "</div>\n" +
+                "</div>";
+            this.chatHistoryHtml += msg_temp
         }
     },
     destroyed() {
@@ -338,5 +357,51 @@ export default {
 .msg_send {
     float: right;
     margin: 5px 10px;
+}
+
+.userListTitle{
+    height: 30px;
+    font-size: 20px;
+    color: white;
+    text-align: center;
+    line-height: 30px;
+    border-radius: 0 0 50% 50%;
+    background: rgba(239, 96, 17, 0.8);
+}
+
+.userListScrollbar{
+    height: 90%;
+}
+.userList{
+    width: 100%;
+    height: 100%;
+    //background: rgba(239, 96, 17, 0.8);
+}
+:deep(.userInfo){
+    width: 100%;
+    height: 50px;
+    line-height: 50px;
+}
+:deep(.ulistlogo){
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    float: left;
+    margin: 5px;
+
+    background-image: url(@/assets/img/IzumiKonata_logo.jpg);
+    background-size: cover; /*图片平铺*/
+    background-repeat: no-repeat;
+    background-position: center; /*居中显示*/
+}
+:deep(.ulistname){
+    width: 60%;
+    font-size: 15px;
+    float: left;
+    padding-left:5px;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 </style>

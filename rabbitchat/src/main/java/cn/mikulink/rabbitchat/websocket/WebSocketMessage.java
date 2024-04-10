@@ -37,7 +37,7 @@ public class WebSocketMessage {
     private String chatAuth;
     /**
      * 动作类型
-     * 0.服务器消息 1.发送到用户 2.发送到群
+     * 0.服务器消息 1.发送到用户 2.发送到群 3.获取用户列表 4.获取用户信息 5.获取历史消息
      */
     private Integer messageSendType;
     /**
@@ -50,6 +50,10 @@ public class WebSocketMessage {
      * 消息来源用户名称
      */
     private String fromUname;
+    /**
+     * 消息来源用户头像
+     */
+    private String fromUserImg;
     /**
      * 消息来源群id
      */

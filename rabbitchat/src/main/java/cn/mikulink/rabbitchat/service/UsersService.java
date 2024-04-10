@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -148,10 +149,16 @@ public class UsersService {
      * @return 用户信息
      */
     public UsersInfo getById(Long userId) {
-        //todo 访问量一定大 走缓存减少db访问量
         return this.mapper.getById(userId);
     }
 
+    /**
+     * 获取用户列表
+     * @return
+     */
+    public List<UsersInfo> getAll(){
+        return this.mapper.getAll();
+    }
 
     /**
      * 根据用户信息创建会话权限码

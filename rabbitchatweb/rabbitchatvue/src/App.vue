@@ -1,5 +1,4 @@
 <script setup>
-// import HelloWorld from './components/HelloWorld.vue'
 import Index from './views/Index.vue'
 import chat from './views/login.vue'
 

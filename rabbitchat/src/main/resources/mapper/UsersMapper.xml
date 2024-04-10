@@ -38,4 +38,8 @@
         values (#{createTime}, #{name}, #{account}, #{password}, #{passwordSalt}, #{userImg}, #{userStatus})
     </select>
 
+    <select id="getAll" resultMap="ResultMap">
+        select id,create_time, name, account, user_img, user_status from users
+    </select>
+
 </mapper>
