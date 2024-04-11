@@ -1,13 +1,17 @@
 package cn.mikulink.rabbitchat.service;
 
 import cn.mikulink.rabbitchat.entity.db.ChatRecordInfo;
+import cn.mikulink.rabbitchat.entity.param.ChatRecordParam;
 import cn.mikulink.rabbitchat.entity.response.MethodReInfo;
 import cn.mikulink.rabbitchat.mapper.ChatRecordMapper;
+import cn.mikulink.rabbitchat.utils.PageUtil;
 import cn.mikulink.rabbitchat.utils.StringUtil;
 import jakarta.websocket.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * MikuLink created in 2024/2/25 5:18
@@ -30,18 +34,16 @@ public class ChatRecordService {
         mapper.create(info);
     }
 
+
     /**
-     *
-     * @param message
-     * @param session
+     * 聊天记录列表
+     * @param param
+     * @return
      */
-    public void onMessage(String message, Session session){
-
+    public List<ChatRecordInfo> getChatRecordHistory(ChatRecordParam param){
+        param.setLimitStart(PageUtil.getLimit(param.getPage(),param.getPageSize()));
+        return mapper.getChatRecordHistory(param);
     }
-
-
-
-
 
 
 

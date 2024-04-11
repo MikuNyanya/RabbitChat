@@ -2,7 +2,9 @@ package cn.mikulink.rabbitchat.websocket;
 
 import cn.mikulink.rabbitchat.entity.db.ChatRecordInfo;
 import cn.mikulink.rabbitchat.entity.db.UsersInfo;
+import cn.mikulink.rabbitchat.entity.param.ChatRecordParam;
 import cn.mikulink.rabbitchat.entity.response.MethodReInfo;
+import cn.mikulink.rabbitchat.entity.response.chat.ChatRecordVo;
 import cn.mikulink.rabbitchat.service.ChatRecordService;
 import cn.mikulink.rabbitchat.service.UsersService;
 import cn.mikulink.rabbitchat.utils.DateUtil;
@@ -12,12 +14,11 @@ import jakarta.websocket.*;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -145,8 +146,20 @@ public class WebSocketServer {
             sendUserList(msgInfo);
         }
 
+        if (msgInfo.getMessageSendType() == 4) {
+            //获取用户信息
+            sendUserInfo(msgInfo);
+        }
+
+        if (msgInfo.getMessageSendType() == 5) {
+            //获取历史消息
+            sendChatRecordHistory(msgInfo);
+        }
+
         //消息
-        sendMessage(msgInfo);
+        if (msgInfo.getMessageSendType() == 1 || msgInfo.getMessageSendType() == 2) {
+            sendMessage(msgInfo);
+        }
     }
 
     /**
@@ -208,15 +221,13 @@ public class WebSocketServer {
         //发送给session在线群员
 
 
-
-
-        for (Session value : onlineSessionClientMap.values()) {
-            if (value == null) {
+        for (String uid : onlineSessionClientMap.keySet()) {
+            if (uid == null) {
                 continue;
             }
             // 异步发送
-            log.info("群组消息，向客户端发送消息,toUid:{},message:{}", messageInfo.getToUid(), message);
-            value.getAsyncRemote().sendText(message);
+            log.info("群组消息，向客户端发送消息,toUid:{},message:{}", uid, message);
+            onlineSessionClientMap.get(uid).getAsyncRemote().sendText(message);
         }
     }
 
@@ -252,7 +263,6 @@ public class WebSocketServer {
         }
     }
 
-
     //发送消息给用户
     private void msgToUser(WebSocketMessage msgInfo) {
         //是否互为联系人
@@ -262,6 +272,7 @@ public class WebSocketServer {
 
         if (null == usersInfo) {
             log.error("用户消息异常，用户不存在,uid:{}", msgInfo.getFromUid());
+            return;
         }
 
         WebSocketMessage sendMsg = new WebSocketMessage(null, 1, String.valueOf(msgInfo.getFromUid()), usersInfo.getName(),
@@ -271,9 +282,10 @@ public class WebSocketServer {
     }
 
     //发送消息到群组
-    private void msgToGroup(WebSocketMessage msgInfo){
+    private void msgToGroup(WebSocketMessage msgInfo) {
         UsersInfo usersInfo = usersService.getById(NumberUtil.toLong(msgInfo.getFromUid()));
         msgInfo.setFromUserImg(usersInfo.getUserImg());
+        msgInfo.setFromUname(usersInfo.getName());
         //发送给群组
         sendToGroup(msgInfo);
     }
@@ -285,6 +297,49 @@ public class WebSocketServer {
         WebSocketMessage sendMsg = new WebSocketMessage(null, 3, "0", null,
                 null, String.valueOf(msgInfo.getFromUid()), null, "SUCCESS", DateUtil.toString(new Date()),
                 JSONObject.toJSONString(usersInfos));
+        this.sendToOne(sendMsg);
+    }
+
+    private void sendUserInfo(WebSocketMessage msgInfo) {
+        UsersInfo usersInfo = usersService.getById(NumberUtil.toLong(msgInfo.getFromUid()));
+
+        WebSocketMessage sendMsg = new WebSocketMessage(null, 4, "0", null,
+                null, String.valueOf(msgInfo.getFromUid()), null, "SUCCESS", DateUtil.toString(new Date()),
+                JSONObject.toJSONString(usersInfo));
+        this.sendToOne(sendMsg);
+    }
+
+    //返回用户列表
+    private void sendChatRecordHistory(WebSocketMessage msgInfo) {
+        ChatRecordParam param = JSONObject.parseObject(msgInfo.getMessage(),ChatRecordParam.class);
+
+        List<ChatRecordInfo> list = chatRecordService.getChatRecordHistory(param);
+        Map<Long,UsersInfo> tempMap = new HashMap<>();
+
+        List<ChatRecordVo> result = new ArrayList<>();
+        for (ChatRecordInfo chatRecordInfo : list) {
+            UsersInfo usersInfo = null;
+            if(tempMap.containsKey(chatRecordInfo.getFromId())){
+                usersInfo = tempMap.get(chatRecordInfo.getFromId());
+            }else{
+                usersInfo = usersService.getById(chatRecordInfo.getFromId());
+                tempMap.put(chatRecordInfo.getFromId(),usersInfo);
+            }
+            if(null == usersInfo){
+                continue;
+            }
+
+            ChatRecordVo vo = new ChatRecordVo();
+            BeanUtils.copyProperties(chatRecordInfo,vo);
+            vo.setFromUserName(usersInfo.getName());
+            vo.setFromUserImg(usersInfo.getUserImg());
+
+            result.add(vo);
+        }
+
+        WebSocketMessage sendMsg = new WebSocketMessage(null, 5, "0", null,
+                null, String.valueOf(msgInfo.getFromUid()), null, "SUCCESS", DateUtil.toString(new Date()),
+                JSONObject.toJSONString(result));
         this.sendToOne(sendMsg);
     }
 }

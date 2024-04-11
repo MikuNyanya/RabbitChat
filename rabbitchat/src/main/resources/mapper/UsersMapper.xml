@@ -20,7 +20,7 @@
     </select>
 
     <select id="getById" resultMap="ResultMap">
-        select * from users where id = #{id}
+        select id,create_time, name, account, user_img, user_status from users where id = #{id}
     </select>
 
     <select id="getOne" resultMap="ResultMap">

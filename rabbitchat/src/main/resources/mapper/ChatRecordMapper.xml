@@ -25,4 +25,10 @@
         VALUES (#{createTime}, #{type}, #{status}, #{fromId}, #{toId}, #{content}, #{readStatus}, #{readTime})
     </select>
 
+    <select id="getChatRecordHistory" resultMap="ResultMap">
+        select * from chat_record
+        order by create_time asc
+        limit #{limitStart},#{pageSize}
+    </select>
+
 </mapper>

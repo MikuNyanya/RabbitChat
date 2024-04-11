@@ -3,27 +3,27 @@
         <el-aside width="200px">
             <el-menu>
                 <el-scrollbar>
-                    <el-menu-item>个人信息</el-menu-item>
+                    <!--                    <el-menu-item>个人信息</el-menu-item>-->
                 </el-scrollbar>
             </el-menu>
 
         </el-aside>
-        <el-main>
+        <el-main style="padding: 5px">
             <div class="chat_main" v-if="chat_hide">
                 <div class="chat_head">
                     <div style="text-align: center;font-size: 25px;color: white">兔子窝</div>
-<!--                    <el-button class="chat_close" @click="close_chat">X</el-button>-->
+                    <!--                    <el-button class="chat_close" @click="close_chat">X</el-button>-->
                 </div>
 
                 <el-scrollbar class="chat_history" ref="chatHistoryScrollbar">
-                <div class="chat_history" v-html="chatHistoryHtml" ref="chatHistory"></div>
+                    <div class="chat_history" v-html="chatHistoryHtml" ref="chatHistory"></div>
                 </el-scrollbar>
                 <div class="chat_tool">
                     <el-button class="msg_send" type="primary" @click="send(message)">发送
                     </el-button>
                 </div>
                 <div class="chat_input">
-                    <textarea id="message" v-model="message" style="width: 80%;height: 80%"/>
+                    <textarea id="message" v-model="message"/>
                 </div>
             </div>
         </el-main>
@@ -31,12 +31,7 @@
         <el-aside width="200px">
             <h5 class="userListTitle">用户列表</h5>
             <el-scrollbar class="userListScrollbar">
-            <div class="userList" v-for="(item,index) in userList">
-                <div class="userInfo">
-                    <div class="ulistlogo" style="background-image: url(/src/assets/img/IzumiKonata_logo.jpg);"></div>
-                    <div class="ulistname" >{{ item.name }}</div>
-                </div>
-            </div>
+                <div class="userList" v-html="userListHtml"></div>
             </el-scrollbar>
         </el-aside>
     </el-container>
@@ -54,13 +49,15 @@ export default {
             authStr: "",
             uid: "",
             toUid: "1",
-            userName:"",
-            userImg:"",
+            toGroupId: "0",
+            userName: "",
+            userImg: "",
             message: "这里填写消息",
             chat_hide: true,
             //聊天框消息内容
             chatHistoryHtml: "",
-            userList:[],
+            chatHistoryPage: 1,
+            userListHtml: "",
         }
     },
     mounted() {
@@ -105,12 +102,14 @@ export default {
 
             let dataObj = JSON.parse(msg.data);
 
-            if(dataObj.message == "与服务器连接成功"){
+            if (dataObj.message == "与服务器连接成功") {
                 this.getUserList();
+                this.getUserInfo();
+                this.getChatRecordHistory();
             }
 
             if (dataObj.messageSendType === 1 || dataObj.messageSendType === 2) {
-                if(dataObj.fromUid === this.uid) {
+                if (dataObj.fromUid === this.uid) {
                     //自己的消息
                     // let msg_temp = "<div class=\"msg_main_r\">\n" +
                     //     "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
@@ -120,37 +119,69 @@ export default {
                     //     "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ dataObj.message + "</div>\n" +
                     //     "</div>";
                     // this.chatHistoryHtml += msg_temp
-                }else{
-                    this.chatAdd(dataObj.fromUserImg,dataObj.fromUname,dataObj.message);
+                } else {
+                    this.chatAdd(dataObj.fromUserImg, dataObj.fromUname, dataObj.message);
                 }
 
                 //消息框滚动到最底部
                 //新消息需要先添加进去，再刷新滚动条，所以延迟一点时间刷新
                 setTimeout(() => {
                     this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
-                    console.log(this.$refs.chatHistory.scrollHeight + " "+this.$refs.chatHistory.clientHeight)
+                    console.log(this.$refs.chatHistory.scrollHeight + " " + this.$refs.chatHistory.clientHeight)
                 }, 1);
-            }else if(dataObj.messageSendType === 0){
-                //服务器消息
-
-            }else if(dataObj.messageSendType === 3){
-                //用户列表
-                this.userList = JSON.parse(dataObj.message);
             }
 
+            if (dataObj.messageSendType === 0) {
+                //服务器消息
+
+            }
+
+            if (dataObj.messageSendType === 3) {
+                //用户列表
+                let userList = JSON.parse(dataObj.message);
+                console.log(userList);
+                for (let i in userList) {
+                    let u = userList[i];
+
+                    let userListHtml = " <div class=\"userInfo\">\n" +
+                        "                    <div class=\"ulistlogo\" style=\"background-image: url(/src/assets/img/" + u.userImg + ");\"></div>\n" +
+                        "                    <div class=\"ulistname\" >" + u.name + "</div>\n" +
+                        "                </div>";
+
+                    this.userListHtml += userListHtml
+                }
+            }
+
+            if (dataObj.messageSendType === 4) {
+                let userInfo = JSON.parse(dataObj.message);
+                this.userName = userInfo.name;
+                this.userImg = userInfo.userImg;
+            }
+
+            if (dataObj.messageSendType === 5) {
+                let chatHistory = JSON.parse(dataObj.message);
+                for (let i in chatHistory) {
+                    this.chatAdd(chatHistory[i].fromUserImg, chatHistory[i].fromUserName, chatHistory[i].content);
+                }
+
+                setTimeout(() => {
+                    this.$refs.chatHistoryScrollbar.setScrollTop(this.$refs.chatHistory.scrollHeight);
+                }, 1);
+            }
         },
         // 发送消息给被连接的服务端
         send: function (message) {
             var msgInfo = {
                 chatAuth: this.authStr,
-                messageSendType: 1,
+                messageSendType: 2,
                 message: message,
                 fromUid: this.uid,
-                toUid: this.toUid
+                toUid: this.toUid,
+                toGroupId: this.toUid
             }
 
             let msg_width_css = "auto";
-            if (msgInfo.message.length>35){
+            if (msgInfo.message.length > 35) {
                 msg_width_css = "45%";
             }
             //在聊天框加入自己的消息
@@ -162,11 +193,11 @@ export default {
             //     "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ msgInfo.message + "</div>\n" +
             //     "</div>";
             let msg_temp = "<div class=\"msg_main_other\">\n" +
-                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/"+this.userImg+");\"></div>" +
+                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/" + this.userImg + ");\"></div>" +
                 "<div class=\"msg_nick\">" + this.userName + "</div>\n" +
                 "<br/>\n" +
                 "<br/>\n" +
-                "<div class=\"msg_msg\" style=\"width: "+msg_width_css+"\">" + msgInfo.message + "</div>\n" +
+                "<div class=\"msg_msg\" style=\"width: " + msg_width_css + "\">" + msgInfo.message + "</div>\n" +
                 "</div>";
             this.chatHistoryHtml += msg_temp
 
@@ -176,13 +207,37 @@ export default {
 
             this.socket.send(JSON.stringify(msgInfo))
         },
-        getUserList(){
+        getUserList() {
             var msgInfo = {
                 chatAuth: this.authStr,
                 messageSendType: 3,
                 fromUid: this.uid
             }
 
+            this.socket.send(JSON.stringify(msgInfo))
+        },
+        getUserInfo() {
+            var msgInfo = {
+                chatAuth: this.authStr,
+                messageSendType: 4,
+                fromUid: this.uid
+            }
+
+            this.socket.send(JSON.stringify(msgInfo))
+        },
+        getChatRecordHistory() {
+            var param = {
+                toId: 0,
+                page: this.chatHistoryPage,
+            }
+
+            var msgInfo = {
+                chatAuth: this.authStr,
+                messageSendType: 5,
+                fromUid: this.uid,
+                message: JSON.stringify(param),
+            }
+            this.chatHistoryPage++;
             this.socket.send(JSON.stringify(msgInfo))
         },
         close: function () {
@@ -196,19 +251,19 @@ export default {
         close_chat() {
             this.chat_hide = false;
         },
-        chatAdd(logo,name,message){
+        chatAdd(logo, name, message) {
             let msg_width_css = "auto";
-            if (message.length>35){
+            if (message.length > 35) {
                 msg_width_css = "45%";
             }
 
             //别人的消息
             let msg_temp = "<div class=\"msg_main_other\">\n" +
-                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/"+dataObj.fromUserImg +");\"></div>" +
-                "<div class=\"msg_nick\">" + dataObj.fromUname + "</div>\n" +
+                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/" + logo + ");\"></div>" +
+                "<div class=\"msg_nick\">" + name + "</div>\n" +
                 "<br/>\n" +
                 "<br/>\n" +
-                "<div class=\"msg_msg\" style=\"width: "+msg_width_css+"\">" + dataObj.message + "</div>\n" +
+                "<div class=\"msg_msg\" style=\"width: " + msg_width_css + "\">" + message + "</div>\n" +
                 "</div>";
             this.chatHistoryHtml += msg_temp
         }
@@ -238,14 +293,14 @@ export default {
 }
 
 .chat_main {
-    width: 80%;
+    width: 100%;
     height: 100%;
 }
 
 .chat_head {
     height: 5%;
     background: rgba(255, 100, 1, 1);
-    border-radius: 20px 20px 0 0;
+//border-radius: 20px 20px 0 0;
 }
 
 .chat_close {
@@ -280,7 +335,7 @@ export default {
     background: rgba(255, 255, 255, 0.3);
     width: 100%;
     height: 20%;
-    border-radius: 0 0 20px 20px;
+//border-radius: 0 0 20px 20px;
 }
 
 :deep(.msg_main_other) {
@@ -311,9 +366,7 @@ export default {
 }
 
 :deep(.msg_msg) {
-    //width: 50%;
-    margin-left: 30px;
-    padding: 8px;
+//width: 50%; margin-left: 30px; padding: 8px;
     border-radius: 10px;
     background: rgba(239, 96, 17, 0.8);
     float: left;
@@ -346,9 +399,7 @@ export default {
 }
 
 :deep(.msg_msg_r) {
-    //width: 50%;
-    margin-right: 30px;
-    padding: 8px;
+//width: 50%; margin-right: 30px; padding: 8px;
     border-radius: 10px;
     background: rgba(239, 96, 17, 0.8);
     float: right;
@@ -359,7 +410,7 @@ export default {
     margin: 5px 10px;
 }
 
-.userListTitle{
+.userListTitle {
     height: 30px;
     font-size: 20px;
     color: white;
@@ -369,20 +420,23 @@ export default {
     background: rgba(239, 96, 17, 0.8);
 }
 
-.userListScrollbar{
+.userListScrollbar {
     height: 90%;
 }
-.userList{
+
+.userList {
     width: 100%;
     height: 100%;
-    //background: rgba(239, 96, 17, 0.8);
+//background: rgba(239, 96, 17, 0.8);
 }
-:deep(.userInfo){
+
+:deep(.userInfo) {
     width: 100%;
     height: 50px;
     line-height: 50px;
 }
-:deep(.ulistlogo){
+
+:deep(.ulistlogo) {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -394,14 +448,23 @@ export default {
     background-repeat: no-repeat;
     background-position: center; /*居中显示*/
 }
-:deep(.ulistname){
+
+:deep(.ulistname) {
     width: 60%;
     font-size: 15px;
     float: left;
-    padding-left:5px;
+    padding-left: 5px;
 
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+#message {
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.4);
+    border: 0;
+    padding: 5px;
 }
 </style>
