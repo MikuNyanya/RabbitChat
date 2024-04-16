@@ -10,6 +10,8 @@ rabbitchat:
   redisexpiretime: 3600
   #3des密钥
   des3key: IE37Ih9GfBM8oKajGMEGE37u
+  #用户预设头像信息json
+  userLogoJson: "{}"
 
 #服务端口
 server:
