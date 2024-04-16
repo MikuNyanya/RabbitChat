@@ -23,7 +23,7 @@ export default defineConfig({
         proxy: { //配置多个代理
             '/api': {
                 target: "http://localhost:21010/",  //目标地址
-                // ws: true,    //启用websocket
+                ws: true,    //启用websocket
                 changeOrigin: true,//设置访问目标地址允许跨域
                 rewrite: (p) => p.replace(/^\/api/, '')
             }

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 /**
  * MikuLink created in 2024/2/18 2:22
  * For the Reisen
@@ -25,6 +27,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @Controller
 @RequestMapping("/user")
 public class UserController {
+
     @Autowired
     private UsersService usersService;
 
@@ -64,9 +67,19 @@ public class UserController {
             return ResponseBean.bizFail(rabEx.getMessage());
         } catch (Exception ex) {
             log.error("用户注册异常", ex);
-            ex.printStackTrace();
             return ResponseBean.error();
         }
     }
 
+    @RequestMapping(value = "logoList", method = RequestMethod.GET)
+    @ResponseBody
+    public String logoList() {
+        try {
+            List<String> logos = usersService.getLogoList();
+            return ResponseBean.bizSuccess("获取成功", JSONObject.toJSONString(logos));
+        } catch (Exception ex) {
+            log.error("获取用户头像列表异常", ex);
+            return ResponseBean.error();
+        }
+    }
 }

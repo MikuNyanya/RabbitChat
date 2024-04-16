@@ -1,6 +1,7 @@
 <script>
 
 import axios from "axios";
+import { ElMessage } from 'element-plus'
 
 export default {
     data() {
@@ -23,7 +24,7 @@ export default {
             //执行登录 并获取授权
             axios.post('api/user/login', {account: this.account, password: this.pwd}).then(function (response) {
                 if (response.data.status != 0) {
-                    that.errorMsg = response.data.errorMessage;
+                    ElMessage.error(response.data.errorMessage);
                     return;
                 }
                 let loginData = JSON.parse(response.data.data);
@@ -50,7 +51,7 @@ export default {
             <el-col :span="12" :offset="6">
                 <el-form label-width="100px" class="formc">
                     <el-form-item>
-                        <el-text class="msgLab" type="danger">{{errorMsg}}</el-text>
+                        <el-text class="msgLab" type="danger">{{ errorMsg }}</el-text>
                     </el-form-item>
                     <el-form-item class="labelColor" label="账号">
                         <el-input class="input" v-model="account"/>
@@ -72,9 +73,7 @@ export default {
 
 <style scoped>
 .msgLab {
-    //border: none;
-    //color: #f38787;
-    font-size: 25px;
+//border: none; //color: #f38787; font-size: 25px;
 }
 
 .content {
@@ -87,9 +86,10 @@ export default {
     width: 100%;
     text-align: center;
 }
+
 .formc {
     width: 400px;
-    background-color: rgba(255,255,255,0.3);
+    background-color: rgba(255, 255, 255, 0.3);
     padding: 10px;
     border-radius: 20px;
 }
@@ -98,13 +98,9 @@ export default {
     width: 200px;
     margin: 5px;
 }
-
-
 </style>
-
 <style>
-.labelColor .el-form-item__label{
+.labelColor .el-form-item__label {
     color: white;
 }
-
 </style>

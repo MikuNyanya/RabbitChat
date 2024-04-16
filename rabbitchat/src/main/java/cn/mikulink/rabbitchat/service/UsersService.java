@@ -10,12 +10,15 @@ import cn.mikulink.rabbitchat.exceptions.RabbitException;
 import cn.mikulink.rabbitchat.mapper.UsersMapper;
 import cn.mikulink.rabbitchat.redis.RabbitRedisService;
 import cn.mikulink.rabbitchat.utils.*;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,6 +36,9 @@ public class UsersService {
     private String des3Key;
     @Value("${rabbitchat.nameen}")
     private String appName;
+    @Value("${rabbitchat.userLogoFilePath}")
+    private String userLogoFilePath;
+
 
     @Autowired
     private UsersMapper mapper;
@@ -77,6 +83,8 @@ public class UsersService {
         //如果没设置头像，使用默认头像
         if (StringUtil.isEmpty(param.getUserImg())) {
             usersInfo.setUserImg("");
+        }else{
+            usersInfo.setUserImg(param.getUserImg());
         }
         usersInfo.setUserStatus(0);
 
@@ -154,9 +162,10 @@ public class UsersService {
 
     /**
      * 获取用户列表
+     *
      * @return
      */
-    public List<UsersInfo> getAll(){
+    public List<UsersInfo> getAll() {
         return this.mapper.getAll();
     }
 
@@ -212,5 +221,25 @@ public class UsersService {
         }
 
         return MethodReInfo.create();
+    }
+
+    /**
+     * 获取用户头像文件名称列表
+     *
+     * @return 文件名称列表
+     */
+    public List<String> getLogoList() {
+        List<String> result = new ArrayList<>();
+        //走缓存 缓存时效1小时
+        String logoListTemp = rabbitRedisService.get(RedisContent.KEY_USER_LOGOLIST);
+        if (null != logoListTemp) {
+            result = JSONObject.parseArray(logoListTemp, String.class);
+        } else {
+            String[] fileList = FileUtil.getList(userLogoFilePath);
+            if (null != fileList) {
+                result = Arrays.asList(fileList);
+            }
+        }
+        return result;
     }
 }

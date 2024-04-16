@@ -53,7 +53,7 @@ export default {
             toGroupId: "0",
             userName: "",
             userImg: "",
-            message: "这里填写消息",
+            message: "",
             chat_hide: true,
             //聊天框消息内容
             chatHistoryHtml: "",
@@ -182,9 +182,10 @@ export default {
             }
 
             let msg_width_css = "auto";
-            if (msgInfo.message.length > 40) {
-                msg_width_css = "45%";
-            }
+            // if (msgInfo.message.length > 40) {
+            //     msg_width_css = "45%";
+            // }
+
             //在聊天框加入自己的消息
             // let msg_temp = "<div class=\"msg_main_r\">\n" +
             //     "<div class=\"msg_logo_r\" style=\"background-image: url(/src/assets/img/rabbit_logo.jpg);\"></div>\n" +
@@ -255,9 +256,9 @@ export default {
         },
         chatAdd(logo, name, message,type) {
             let msg_width_css = "auto";
-            if (message.length > 40) {
-                msg_width_css = "45%";
-            }
+            // if (message.length > 40) {
+            //     msg_width_css = "45%";
+            // }
 
             //别人的消息
             let msg_temp = "<div class=\"msg_main_other\">\n" +
@@ -371,6 +372,7 @@ export default {
 
 :deep(.msg_msg) {
     //width: 50%;
+    max-width: 700px;
     margin-left: 30px;
     padding: 8px;
     border-radius: 10px;

@@ -5,13 +5,13 @@ rabbitchat:
   #项目英文名
   nameen: RabbitChat
   #项目版本
-  version: v0.5
+  version: v0.6
   #redis过期默认时间(秒)
   redisexpiretime: 3600
   #3des密钥
   des3key: IE37Ih9GfBM8oKajGMEGE37u
-  #用户预设头像信息json
-  userLogoJson: "{}"
+  #用户预设头像文件夹路径
+  userLogoFilePath: G:\RabbitChat\rabbitchatweb\rabbitchatvue\src\assets\img
 
 #服务端口
 server:
