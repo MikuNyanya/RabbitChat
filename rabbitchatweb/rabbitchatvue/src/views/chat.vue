@@ -45,6 +45,7 @@ export default {
         return {
             testText: "测试",
             path: "ws://localhost:21010/websocket/",
+            imgpath: "/src/assets/img/",
             socket: "",
             authStr: "",
             uid: "",
@@ -144,7 +145,7 @@ export default {
                     let u = userList[i];
 
                     let userListHtml = " <div class=\"userInfo\">\n" +
-                        "                    <div class=\"ulistlogo\" style=\"background-image: url(/src/assets/img/" + u.userImg + ");\"></div>\n" +
+                        "                    <div class=\"ulistlogo\" style=\"background-image: url(" + this.imgpath + u.userImg + ");\"></div>\n" +
                         "                    <div class=\"ulistname\" >" + u.name + "</div>\n" +
                         "                </div>";
 
@@ -161,7 +162,7 @@ export default {
             if (dataObj.messageSendType === 5) {
                 let chatHistory = JSON.parse(dataObj.message);
                 for (let i in chatHistory) {
-                    this.chatAdd(chatHistory[i].fromUserImg, chatHistory[i].fromUserName, chatHistory[i].content);
+                    this.chatAdd(chatHistory[i].fromUserImg, chatHistory[i].fromUserName, chatHistory[i].content,5);
                 }
 
                 setTimeout(() => {
@@ -181,7 +182,7 @@ export default {
             }
 
             let msg_width_css = "auto";
-            if (msgInfo.message.length > 35) {
+            if (msgInfo.message.length > 40) {
                 msg_width_css = "45%";
             }
             //在聊天框加入自己的消息
@@ -193,7 +194,7 @@ export default {
             //     "<div class=\"msg_msg_r\" style=\"width: "+msg_width_css+"\">\n"+ msgInfo.message + "</div>\n" +
             //     "</div>";
             let msg_temp = "<div class=\"msg_main_other\">\n" +
-                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/" + this.userImg + ");\"></div>" +
+                "<div class=\"msg_logo\" style=\"background-image: url(" + this.imgpath + this.userImg + ");\"></div>" +
                 "<div class=\"msg_nick\">" + this.userName + "</div>\n" +
                 "<br/>\n" +
                 "<br/>\n" +
@@ -229,6 +230,7 @@ export default {
             var param = {
                 toId: 0,
                 page: this.chatHistoryPage,
+                pageSize: 20,
             }
 
             var msgInfo = {
@@ -251,21 +253,26 @@ export default {
         close_chat() {
             this.chat_hide = false;
         },
-        chatAdd(logo, name, message) {
+        chatAdd(logo, name, message,type) {
             let msg_width_css = "auto";
-            if (message.length > 35) {
+            if (message.length > 40) {
                 msg_width_css = "45%";
             }
 
             //别人的消息
             let msg_temp = "<div class=\"msg_main_other\">\n" +
-                "<div class=\"msg_logo\" style=\"background-image: url(/src/assets/img/" + logo + ");\"></div>" +
+                "<div class=\"msg_logo\" style=\"background-image: url("+this.imgpath + logo + ");\"></div>" +
                 "<div class=\"msg_nick\">" + name + "</div>\n" +
                 "<br/>\n" +
                 "<br/>\n" +
                 "<div class=\"msg_msg\" style=\"width: " + msg_width_css + "\">" + message + "</div>\n" +
                 "</div>";
-            this.chatHistoryHtml += msg_temp
+            if(type && type === 5) {
+                this.chatHistoryHtml= msg_temp + this.chatHistoryHtml;
+            }else {
+                this.chatHistoryHtml += msg_temp
+            }
+
         }
     },
     destroyed() {
@@ -300,7 +307,6 @@ export default {
 .chat_head {
     height: 5%;
     background: rgba(255, 100, 1, 1);
-//border-radius: 20px 20px 0 0;
 }
 
 .chat_close {
@@ -335,13 +341,12 @@ export default {
     background: rgba(255, 255, 255, 0.3);
     width: 100%;
     height: 20%;
-//border-radius: 0 0 20px 20px;
 }
 
 :deep(.msg_main_other) {
     width: 100%;
     float: left;
-//background: rgba(255, 255, 155, 0.3); padding: 10px;
+    padding: 5px;
 }
 
 :deep(.msg_logo) {
@@ -362,19 +367,20 @@ export default {
     padding-left: 10px;
     float: left;
 
-//background: rgba(255, 1, 150, 0.3);
 }
 
 :deep(.msg_msg) {
-//width: 50%; margin-left: 30px; padding: 8px;
+    //width: 50%;
+    margin-left: 30px;
+    padding: 8px;
     border-radius: 10px;
-    background: rgba(239, 96, 17, 0.8);
+    background: rgba(239, 96, 17, 0.7);
     float: left;
+    word-wrap: break-word;
 }
 
 :deep(.msg_main_r) {
     width: 100%;
-//background: rgba(255, 255, 155, 0.3); padding: 10px; float: right;
 }
 
 :deep(.msg_logo_r) {
@@ -394,12 +400,9 @@ export default {
     line-height: 40px;
     padding-right: 10px;
     float: right;
-
-//background: rgba(255, 1, 150, 0.3);
 }
 
 :deep(.msg_msg_r) {
-//width: 50%; margin-right: 30px; padding: 8px;
     border-radius: 10px;
     background: rgba(239, 96, 17, 0.8);
     float: right;
@@ -427,7 +430,6 @@ export default {
 .userList {
     width: 100%;
     height: 100%;
-//background: rgba(239, 96, 17, 0.8);
 }
 
 :deep(.userInfo) {

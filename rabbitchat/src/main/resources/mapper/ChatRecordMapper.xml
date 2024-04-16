@@ -21,13 +21,13 @@
     </select>
 
     <select id="create">
-        INSERT INTO rabbittest.chat_record (create_time, `type`, status, from_id, to_id, content, read_status, read_time)
+        INSERT INTO chat_record (create_time, `type`, status, from_id, to_id, content, read_status, read_time)
         VALUES (#{createTime}, #{type}, #{status}, #{fromId}, #{toId}, #{content}, #{readStatus}, #{readTime})
     </select>
 
     <select id="getChatRecordHistory" resultMap="ResultMap">
         select * from chat_record
-        order by create_time asc
+        order by create_time desc
         limit #{limitStart},#{pageSize}
     </select>
 

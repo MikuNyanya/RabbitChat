@@ -5,7 +5,7 @@ rabbitchat:
   #项目英文名
   nameen: RabbitChat
   #项目版本
-  version: v0.0.1
+  version: v0.5
   #redis过期默认时间(秒)
   redisexpiretime: 3600
   #3des密钥
