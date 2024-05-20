@@ -1,8 +1,16 @@
 # RabbitChat 兔叽通讯
 
-    项目正在早期开发中
 -----
-计划使用springboot+vue+websocket整一个聊天系统出来 
+    本项目是为了熟悉websocket而写的小玩意儿
 
-项目主要包含        
-`springboot` `mybatis` `websocket` `redis`
+### 项目主要包含        
+`springboot`        
+`websocket`        
+`vue`        
+`elementui`    
+
+### 大概长这样
+![图片挂啦](https://github.com/MikuNyanya/RabbitChat/blob/master/20240521033110.png)
+
+-----
+__联系兔子：q群(857489126)__
